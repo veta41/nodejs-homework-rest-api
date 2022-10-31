@@ -65,18 +65,20 @@ const addContact = async ({ name, email, phone }) => {
 };
 
 const updateContact = async (contactId, body) => {
-  const contacts = await readContact();
-  const index = contacts.findIndex((contact) => contact.id === contactId);
-  if (index !== -1) {
-    const updatedContact = { id: contactId, ...contacts[index], ...body };
+  try {
+    const contacts = await readContact();
+    const index = contacts.findIndex((contact) => contact.id === contactId);
+    if (index === -1) return null;
+    const updatedContact = { ...contacts[index], ...body };
     contacts[index] = updatedContact;
     await fs.writeFile(
       path.join(contactsPath),
       JSON.stringify(contacts, null, 2)
     );
     return updatedContact;
+  } catch (error) {
+    console.error(error);
   }
-  return null;
 };
 
 module.exports = {

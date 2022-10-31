@@ -8,7 +8,7 @@ const {
 
 const getAll = async (req, res) => {
   const contacts = await listContacts();
-  res.json({
+  return res.json({
     status: "success",
     code: 200,
     data: {
@@ -21,7 +21,7 @@ const getContactById = async (req, res) => {
   const { id } = req.params;
   const contact = await getById(id);
   if (contact) {
-    res.json({
+    return res.json({
       status: "success",
       code: 200,
       data: {
@@ -34,7 +34,7 @@ const getContactById = async (req, res) => {
 
 const add = async (req, res) => {
   const newContact = await addContact(req.body);
-  res.status(201).json({
+  return res.status(201).json({
     status: "success",
     code: 201,
     data: {
@@ -47,7 +47,7 @@ const updateById = async (req, res) => {
   const { id } = req.params;
   const contact = await updateContact(id, req.body);
   if (contact) {
-    res.json({
+    return res.json({
       status: "success",
       code: 200,
       data: {
@@ -62,7 +62,7 @@ const removeById = async (req, res) => {
   const { id } = req.params;
   const contact = await removeContact(id);
   if (contact) {
-    res.json({
+    return res.json({
       status: "success",
       code: 200,
       data: {

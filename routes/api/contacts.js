@@ -9,17 +9,19 @@ const {
 } = require("../../controllers/contacts");
 const ctrlWrapper = require("../../middelewares/ctrlWrapper");
 const validation = require("../../middelewares/validation");
-const conactSchema = require("../../schemas/contact");
-
-const validateMiddleware = validation(conactSchema);
+const contactValidationSchema = require("../../schemas/contact");
 
 router.get("/", ctrlWrapper(getAll));
 
 router.get("/:id", ctrlWrapper(getContactById));
-router.post("/", validateMiddleware, ctrlWrapper(add));
+router.post("/", validation(contactValidationSchema), ctrlWrapper(add));
 
 router.delete("/:id", ctrlWrapper(removeById));
 
-router.put("/:id", validateMiddleware, ctrlWrapper(updateById));
+router.put(
+  "/:id",
+  validation(contactValidationSchema),
+  ctrlWrapper(updateById)
+);
 
 module.exports = router;
