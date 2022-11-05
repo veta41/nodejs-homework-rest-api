@@ -1,13 +1,7 @@
-const {
-  listContacts,
-  getById,
-  addContact,
-  updateContact,
-  removeContact,
-} = require("../models/contacts");
+const { Contact } = require("../models/contact");
 
 const getAll = async (req, res) => {
-  const contacts = await listContacts();
+  const contacts = await Contact.find();
   return res.json({
     status: "success",
     code: 200,
@@ -19,7 +13,7 @@ const getAll = async (req, res) => {
 
 const getContactById = async (req, res) => {
   const { id } = req.params;
-  const contact = await getById(id);
+  const contact = await Contact.findById(id);
   if (contact) {
     return res.json({
       status: "success",
@@ -33,7 +27,7 @@ const getContactById = async (req, res) => {
 };
 
 const add = async (req, res) => {
-  const newContact = await addContact(req.body);
+  const newContact = await Contact.create(req.body);
   return res.status(201).json({
     status: "success",
     code: 201,
@@ -45,7 +39,7 @@ const add = async (req, res) => {
 
 const updateById = async (req, res) => {
   const { id } = req.params;
-  const contact = await updateContact(id, req.body);
+  const contact = await Contact.findByIdAndUpdate(id, req.body, { new: true });
   if (contact) {
     return res.json({
       status: "success",
@@ -60,7 +54,27 @@ const updateById = async (req, res) => {
 
 const removeById = async (req, res) => {
   const { id } = req.params;
-  const contact = await removeContact(id);
+  const contact = await Contact.findByIdAndDelete(id);
+  if (contact) {
+    return res.json({
+      status: "success",
+      code: 200,
+      data: {
+        result: contact,
+      },
+    });
+  }
+  res.status(404).json({ message: "Not found" });
+};
+
+const updateStatusContact = async (req, res) => {
+  const { id } = req.params;
+  const { favorite } = req.params;
+  const contact = await Contact.findByIdAndUpdate(
+    id,
+    { favorite },
+    { new: true }
+  );
   if (contact) {
     return res.json({
       status: "success",
@@ -79,4 +93,5 @@ module.exports = {
   add,
   updateById,
   removeById,
+  updateStatusContact,
 };

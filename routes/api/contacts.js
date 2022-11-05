@@ -6,22 +6,33 @@ const {
   add,
   removeById,
   updateById,
+  updateStatusContact,
 } = require("../../controllers/contacts");
+
 const ctrlWrapper = require("../../middelewares/ctrlWrapper");
 const validation = require("../../middelewares/validation");
-const contactValidationSchema = require("../../schemas/contact");
+const {
+  contactSchemaValidation,
+  updateFavoriteSchema,
+} = require("../../schemas/contact");
 
 router.get("/", ctrlWrapper(getAll));
 
 router.get("/:id", ctrlWrapper(getContactById));
-router.post("/", validation(contactValidationSchema), ctrlWrapper(add));
+router.post("/", validation(contactSchemaValidation), ctrlWrapper(add));
 
 router.delete("/:id", ctrlWrapper(removeById));
 
 router.put(
   "/:id",
-  validation(contactValidationSchema),
+  validation(contactSchemaValidation),
   ctrlWrapper(updateById)
+);
+
+router.patch(
+  "/:contactId/favorite",
+  validation(updateFavoriteSchema),
+  ctrlWrapper(updateStatusContact)
 );
 
 module.exports = router;
