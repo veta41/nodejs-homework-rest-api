@@ -30,7 +30,7 @@ router.put(
 );
 
 router.patch(
-  "/:contactId/favorite",
+  "/:id/favorite",
   validation(updateFavoriteSchema),
   ctrlWrapper(updateStatusContact)
 );
