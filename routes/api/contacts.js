@@ -11,15 +11,16 @@ const {
 
 const ctrlWrapper = require("../../middelewares/ctrlWrapper");
 const validation = require("../../middelewares/validation");
+const auth = require("../../middelewares/auth");
 const {
   contactSchemaValidation,
   updateFavoriteSchema,
 } = require("../../schemas/contact");
 
-router.get("/", ctrlWrapper(getAll));
+router.get("/", auth, ctrlWrapper(getAll));
 
 router.get("/:id", ctrlWrapper(getContactById));
-router.post("/", validation(contactSchemaValidation), ctrlWrapper(add));
+router.post("/", auth, validation(contactSchemaValidation), ctrlWrapper(add));
 
 router.delete("/:id", ctrlWrapper(removeById));
 
