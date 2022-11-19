@@ -4,6 +4,11 @@ const { User } = require("../models/user");
 const { Conflict, Unauthorized } = require("http-errors");
 const { SECRET_KEY } = process.env;
 
+const path = require("path");
+const fs = require("fs/promises");
+const gravatar = require("gravatar");
+
+
 const register = async (req, res) => {
   const { email, password, subscription } = req.body;
 
@@ -15,8 +20,15 @@ const register = async (req, res) => {
 
   const hashPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
 
+  const avatarURL = gravatar.url(email);
   const result = await User.create({
     email,
+    avatarURL,
+
+
+  const result = await User.create({
+    email,
+
     subscription,
     password: hashPassword,
   });
@@ -28,6 +40,10 @@ const register = async (req, res) => {
       user: {
         email: result.email,
         subscription: result.subscription,
+
+        avatarURL: result.avatarURL,
+
+
       },
     },
   });
@@ -83,10 +99,33 @@ const updateUserSubscription = async (req, res) => {
   });
 };
 
+
+const avatarsDir = path.join(__dirname, "../../", "public", "avatars");
+const updateAvatar = async (req, res) => {
+  const { path: tempUpload, originalname } = req.file;
+  const { _id: id } = req.user;
+  const imageName = `${id}_${originalname}`;
+
+  try {
+    const resultUpload = path.join(avatarsDir, imageName);
+    await fs.rename(tempUpload, resultUpload);
+    const avatarURL = path.join("public", "avatars", imageName);
+    await User.findByIdAndUpdate(req.user._id, { avatarURL });
+    res.json({ avatarURL });
+  } catch (error) {
+    await fs.unlink(tempUpload);
+    throw error;
+  }
+};
+
+
 module.exports = {
   register,
   login,
   logout,
   getCurrent,
   updateUserSubscription,
+
+  updateAvatar,
+
 };
