@@ -7,7 +7,6 @@ const {
   updateUserSubscription,
 
   updateAvatar,
-
 } = require("../../controllers/users");
 const auth = require("../../middelewares/auth");
 const ctrlWrapper = require("../../middelewares/ctrlWrapper");
@@ -15,9 +14,7 @@ const validation = require("../../middelewares/validation");
 
 const upload = require("../../middelewares/upload");
 const resize = require("../../middelewares/resize");
-
-
-
+const verifyEmail = require("../../controllers/verifyEmail");
 const { joiRegisterSchema, joiLoginSchema } = require("../../models/user");
 const { joiUpdateSubscription } = require("../../models/user");
 const router = express.Router();
@@ -30,13 +27,16 @@ router.get("/logout", auth, ctrlWrapper(logout));
 
 router.get("/current", auth, ctrlWrapper(getCurrent));
 
+router.get("/verify/:verificationToken", verifyEmail);
+
+router.post("/verify", auth, verifyEmail);
+
 router.patch(
   "/subscription",
   auth,
   validation(joiUpdateSubscription),
   ctrlWrapper(updateUserSubscription)
 );
-
 
 router.patch(
   "/avatars",

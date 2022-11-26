@@ -3,11 +3,12 @@ const jwt = require("jsonwebtoken");
 const { User } = require("../models/user");
 const { Conflict, Unauthorized } = require("http-errors");
 const { SECRET_KEY } = process.env;
+const { v4: uuid } = require("uuid");
+const sendEmail = require("../helpers/nodemailerEmail");
 
 const path = require("path");
 const fs = require("fs/promises");
 const gravatar = require("gravatar");
-
 
 const register = async (req, res) => {
   const { email, password, subscription } = req.body;
@@ -21,17 +22,26 @@ const register = async (req, res) => {
   const hashPassword = bcrypt.hashSync(password, bcrypt.genSaltSync(10));
 
   const avatarURL = gravatar.url(email);
+
+  const verificationToken = uuid();
+
   const result = await User.create({
     email,
     avatarURL,
-
-
-  const result = await User.create({
-    email,
-
     subscription,
     password: hashPassword,
+    verificationToken,
   });
+
+  const mail = {
+    to: email,
+    subject: "Verify email",
+    html: `<a target="_blank" href="http://localhost:3000/api/users/verify/${verificationToken}">
+        Click to verify your email
+      </a>`,
+  };
+
+  await sendEmail(mail);
 
   res.status(201).json({
     status: "success",
@@ -42,8 +52,6 @@ const register = async (req, res) => {
         subscription: result.subscription,
 
         avatarURL: result.avatarURL,
-
-
       },
     },
   });
@@ -55,7 +63,7 @@ const login = async (req, res) => {
 
   const passCompare = bcrypt.compareSync(password, user.password);
 
-  if (!user || !passCompare) {
+  if (!user || !user.verify || !passCompare) {
     throw new Unauthorized("Email or password is wrong");
   }
 
@@ -99,7 +107,6 @@ const updateUserSubscription = async (req, res) => {
   });
 };
 
-
 const avatarsDir = path.join(__dirname, "../../", "public", "avatars");
 const updateAvatar = async (req, res) => {
   const { path: tempUpload, originalname } = req.file;
@@ -118,14 +125,11 @@ const updateAvatar = async (req, res) => {
   }
 };
 
-
 module.exports = {
   register,
   login,
   logout,
   getCurrent,
   updateUserSubscription,
-
   updateAvatar,
-
 };
