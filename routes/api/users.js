@@ -29,7 +29,7 @@ router.get("/current", auth, ctrlWrapper(getCurrent));
 
 router.get("/verify/:verificationToken", verifyEmail);
 
-router.post("/verify", auth, verifyEmail);
+router.post("/verify", verifyEmail);
 
 router.patch(
   "/subscription",
